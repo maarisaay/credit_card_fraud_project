@@ -2,6 +2,7 @@
 This is a boilerplate pipeline 'fraud_pipeline'
 generated using Kedro 1.4.0
 """
+import mlflow
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -37,6 +38,12 @@ def train_model(X_train: pd.DataFrame, y_train: pd.Series, random_state: int):
         class_weight="balanced", max_iter=1000, random_state=random_state
     )
     model.fit(X_train, y_train)
+
+    # mlflow logging
+    mlflow.log_param("model_type", "LogisticRegression")
+    mlflow.log_param("class_weight", "balanced")
+    mlflow.log_param("random_state", random_state)
+
     return model
 
 
@@ -58,6 +65,13 @@ def evaluate_model(model, X_test: pd.DataFrame, y_test: pd.Series) -> dict:
         "confusion_matrix": cm,
         "classification_report": report,
     }
+
+    # mlflow logging
+    mlflow.log_metric("pr_auc", pr_auc)
+    mlflow.log_metric("roc_auc", roc_auc)
+    mlflow.log_metric("recall_fraud", report["Fraud"]["recall"])
+    mlflow.log_metric("precision_fraud", report["Fraud"]["precision"])
+    mlflow.sklearn.log_model(model, "model")
 
     print(f"PR-AUC:  {pr_auc:.4f}")
     print(f"ROC-AUC: {roc_auc:.4f}")
