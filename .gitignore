@@ -164,4 +164,3 @@ mlruns/*
 .venv
 venv
 *.pdf
-data/*
