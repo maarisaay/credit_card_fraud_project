@@ -1,0 +1,32 @@
+# Here you can define all your datasets by using simple YAML syntax.
+#
+# Documentation for this file format can be found in "The Data Catalog"
+# Link: https://docs.kedro.org/en/stable/catalog-data/introduction/#data-catalog
+
+raw_data:
+  type: pandas.CSVDataset
+  filepath: data/01_raw/creditcard.csv
+
+X_train:
+  type: pickle.PickleDataset
+  filepath: data/05_model_input/X_train.pkl
+
+X_test:
+  type: pickle.PickleDataset
+  filepath: data/05_model_input/X_test.pkl
+
+y_train:
+  type: pickle.PickleDataset
+  filepath: data/05_model_input/y_train.pkl
+
+y_test:
+  type: pickle.PickleDataset
+  filepath: data/05_model_input/y_test.pkl
+
+trained_model:
+  type: pickle.PickleDataset
+  filepath: data/06_models/fraud_model.pkl
+
+evaluation_metrics:
+  type: json.JSONDataset
+  filepath: data/08_reporting/metrics.json
