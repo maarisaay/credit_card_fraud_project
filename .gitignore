@@ -1,0 +1,4 @@
+.venv
+venv
+*.pdf
+data/raw/*.csv
