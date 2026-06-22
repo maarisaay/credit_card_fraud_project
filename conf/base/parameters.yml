@@ -1,7 +1,6 @@
 test_size: 0.2
 random_state: 42
-
-n_trials: 10
+n_trials: 20
 
 selected_features:
   - V14

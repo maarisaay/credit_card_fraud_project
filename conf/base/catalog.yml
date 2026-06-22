@@ -7,30 +7,6 @@ raw_data:
   type: pandas.CSVDataset
   filepath: data/01_raw/creditcard.csv
 
-X_train:
-  type: pickle.PickleDataset
-  filepath: data/05_model_input/X_train.pkl
-
-X_test:
-  type: pickle.PickleDataset
-  filepath: data/05_model_input/X_test.pkl
-
-y_train:
-  type: pickle.PickleDataset
-  filepath: data/05_model_input/y_train.pkl
-
-y_test:
-  type: pickle.PickleDataset
-  filepath: data/05_model_input/y_test.pkl
-
-trained_model:
-  type: pickle.PickleDataset
-  filepath: data/06_models/fraud_model.pkl
-
-evaluation_metrics:
-  type: json.JSONDataset
-  filepath: data/08_reporting/metrics.json
-
 X_train_fe:
   type: pickle.PickleDataset
   filepath: data/04_feature/X_train_fe.pkl
@@ -47,6 +23,38 @@ X_test_scaled:
   type: pickle.PickleDataset
   filepath: data/04_feature/X_test_scaled.pkl
 
+fitted_scaler:
+  type: pickle.PickleDataset
+  filepath: data/06_models/scaler.pkl
+
+X_train:
+  type: pickle.PickleDataset
+  filepath: data/05_model_input/X_train.pkl
+
+X_test:
+  type: pickle.PickleDataset
+  filepath: data/05_model_input/X_test.pkl
+
+y_train:
+  type: pickle.PickleDataset
+  filepath: data/05_model_input/y_train.pkl
+
+y_test:
+  type: pickle.PickleDataset
+  filepath: data/05_model_input/y_test.pkl
+
 best_params:
   type: json.JSONDataset
   filepath: data/08_reporting/best_params.json
+
+trained_model:
+  type: pickle.PickleDataset
+  filepath: data/06_models/fraud_model.pkl
+
+evaluation_metrics:
+  type: json.JSONDataset
+  filepath: data/08_reporting/metrics.json
+
+serving_metadata:
+  type: json.JSONDataset
+  filepath: data/07_model_output/serving_metadata.json

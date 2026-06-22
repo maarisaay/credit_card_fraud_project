@@ -4,6 +4,7 @@ generated using Kedro 1.4.0
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
+
 from .nodes import (
     preprocess_data,
     engineer_features,
@@ -12,6 +13,7 @@ from .nodes import (
     tune_hyperparameters,
     train_model,
     evaluate_model,
+    prepare_serving_artifacts,
 )
 
 
@@ -33,7 +35,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=scale_features,
                 inputs=["X_train_fe", "X_test_fe"],
-                outputs=["X_train_scaled", "X_test_scaled"],
+                outputs=["X_train_scaled", "X_test_scaled", "fitted_scaler"],
                 name="scale_features_node",
             ),
             node(
@@ -59,6 +61,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=["trained_model", "X_test", "y_test"],
                 outputs="evaluation_metrics",
                 name="evaluate_model_node",
+            ),
+            node(
+                func=prepare_serving_artifacts,
+                inputs=["raw_data", "params:selected_features"],
+                outputs="serving_metadata",
+                name="prepare_serving_artifacts_node",
             ),
         ]
     )

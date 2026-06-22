@@ -1,0 +1,20 @@
+services:
+  fraud-api:
+    build: .
+    ports:
+      - "8008:8008"
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    driver: bridge
