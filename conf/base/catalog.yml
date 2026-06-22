@@ -30,3 +30,23 @@ trained_model:
 evaluation_metrics:
   type: json.JSONDataset
   filepath: data/08_reporting/metrics.json
+
+X_train_fe:
+  type: pickle.PickleDataset
+  filepath: data/04_feature/X_train_fe.pkl
+
+X_test_fe:
+  type: pickle.PickleDataset
+  filepath: data/04_feature/X_test_fe.pkl
+
+X_train_scaled:
+  type: pickle.PickleDataset
+  filepath: data/04_feature/X_train_scaled.pkl
+
+X_test_scaled:
+  type: pickle.PickleDataset
+  filepath: data/04_feature/X_test_scaled.pkl
+
+best_params:
+  type: json.JSONDataset
+  filepath: data/08_reporting/best_params.json
