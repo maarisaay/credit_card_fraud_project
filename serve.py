@@ -6,8 +6,14 @@ from pathlib import Path
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.responses import Response
+from prometheus_client import (
+    CONTENT_TYPE_LATEST,
+    Counter,
+    Gauge,
+    Histogram,
+    generate_latest,
+)
 from pydantic import create_model
-from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
 from scipy.stats import ks_2samp
 
 from fraud_detection_mlops.feature_utils import add_engineered_features
@@ -35,11 +41,10 @@ app = FastAPI(title="Fraud Detection API")
 predictions_total = Counter(
     "fraud_predictions_total", "Liczba predykcji", ["predicted_class"]
 )
-prediction_latency = Histogram(
-    "fraud_prediction_latency_seconds", "Czas predykcji"
-)
+prediction_latency = Histogram("fraud_prediction_latency_seconds", "Czas predykcji")
 fraud_probability = Histogram(
-    "fraud_probability", "Rozkład prawdopodobieństwa fraud",
+    "fraud_probability",
+    "Rozkład prawdopodobieństwa fraud",
     buckets=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
 )
 amount_drift_score = Gauge(
