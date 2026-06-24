@@ -1,0 +1,6 @@
+name: pytest.yml
+on:
+  push:
+  pull_request:
+
+jobs:
