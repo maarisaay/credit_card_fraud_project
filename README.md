@@ -1,101 +1,122 @@
-# fraud-detection-mlops
+# Fraud Detection MLOps
+Projekt przedstawiający kompletny pipeline MLOps do wykrywania oszustw w transakcjach kartami kredytowymi.
+Obejmuje eksplorację danych, preprocessing, inżynierię cech, trening modelu, strojenie hiperparametrów, śledzenie eksperymentów, udostępnienie modelu przez API oraz monitoring predykcji.
 
-[![Powered by Kedro](https://img.shields.io/badge/powered_by-kedro-ffc900?logo=kedro)](https://kedro.org)
+## Opis problemu
+Celem projektu jest wykrywanie potencjalnie oszukańczych transakcji kartami kredytowymi.
 
-## Overview
+Jest to problem klasyfikacji binarnej:
 
-This is your new Kedro project, which was generated using `kedro 1.4.0`.
+- `0` – transakcja normalna
+- `1` – transakcja oszukańcza
 
-Take a look at the [Kedro documentation](https://docs.kedro.org) to get started.
+Ze względu na silne niezbalansowanie klas, w projekcie szczególną uwagę zwrócono na metryki takie jak PR-AUC, recall i precision dla klasy fraud.
 
-## Rules and guidelines
+## Dane
 
-In order to get the best out of the template:
+W projekcie wykorzystano zbiór danych dotyczący transakcji kartami kredytowymi.
 
-* Don't remove any lines from the `.gitignore` file we provide
-* Make sure your results can be reproduced by following a data engineering convention
-* Don't commit data to your repository
-* Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
+Dane zawierają:
 
-## How to install dependencies
+- zanonimizowane cechy `V1`–`V28`,
+- kolumnę `Time`,
+- kolumnę `Amount`,
+- zmienną docelową `Class`.
 
-Declare any dependencies in `requirements.txt` for `pip` installation.
+Źródło danych:
 
-To install them, run:
+[Credit Card Fraud Detection – Kaggle](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
 
+Dane nie są przechowywane w repozytorium. Plik należy pobrać osobno i umieścić w katalogu:
+
+```text
+data/01_raw/
 ```
+
+## Główne elementy projektu
+- eksploracja danych w notebooku,
+- model bazowy,
+- pipeline ML w Kedro,
+- inżynieria cech,
+- selekcja cech,
+- strojenie hiperparametrów z użyciem Optuna,
+- śledzenie eksperymentów z MLflow,
+- serwowanie modelu przez FastAPI,
+- monitoring z użyciem metryk Prometheus,
+- logowanie predykcji,
+- wykrywanie driftu danych
+
+## Pipeline ML
+Pipeline został zaimplementowany z użyciem Kedro i obejmuje następujące etapy:
+
+1. wczytanie i podział danych,
+2. preprocessing,
+3. inżynieria cech,
+4. skalowanie,
+5. selekcja cech,
+6. strojenie hiperparametrów,
+7. trening modelu,
+8. ewaluacja,
+9. przygotowanie artefaktów do serwowania.
+
+## Inżynieria cech
+W ramach inżynierii cech utworzono między innymi:
+
+- `hour_of_day` – godzina transakcji wyliczona na podstawie Time,
+- `amount_log` – logarytmiczna transformacja kwoty transakcji,
+- interakcje `Amount` z wybranymi cechami PCA:
+  - `amount_x_V17`
+  - `amount_x_V14`
+  - `amount_x_V12`
+  - `amount_x_V10`
+
+## Model i strojenie hiperparametrów
+
+Modelem finalnym jest `LogisticRegression` z wagami klas ustawionymi jako `balanced`.
+
+Do strojenia hiperparametrów wykorzystano bibliotekę Optuna. Strojony był parametr `C`, a jako metrykę optymalizacyjną zastosowano `average_precision`, ponieważ problem jest silnie niezbalansowany.
+
+## API
+Model został udostępniony jako aplikacja FastAPI.
+
+Dostępne endpointy:
+
+- `POST /predict` – wykonuje predykcję dla pojedynczej transakcji,
+- `GET /metrics` – udostępnia metryki Prometheus, 
+- `GET /health` – sprawdza status aplikacji.
+
+## Monitoring
+Monitoring obejmuje:
+
+- liczbę wykonanych predykcji,
+- czas predykcji,
+- rozkład prawdopodobieństwa fraud,
+- logowanie predykcji do pliku `predictions.log`,
+- wykrywanie driftu danych na podstawie testu Kolmogorova-Smirnova dla cechy `Amount`.
+
+## Instalacja
+```bash
 pip install -r requirements.txt
 ```
 
-## How to run your Kedro pipeline
-
-You can run your Kedro project with:
-
-```
+## Uruchomienie pipeline’u
+```bash
 kedro run
 ```
 
-## How to test your Kedro project
-
-Have a look at the file `tests/test_run.py` for instructions on how to write your tests. You can run your tests as follows:
-
-```
-pytest
+## Uruchomienie API
+```bash
+uvicorn src.serve:app --reload
 ```
 
-You can configure the coverage threshold in your project's `pyproject.toml` file under the `[tool.coverage.report]` section.
+Po uruchomieniu API dokumentacja Swagger jest dostępna pod adresem:
 
+http://127.0.0.1:8000/docs
 
-## Project dependencies
+Endpoint metryk:
 
-To see and update the dependency requirements for your project use `requirements.txt`. You can install the project requirements with `pip install -r requirements.txt`.
+http://127.0.0.1:8000/metrics
 
-[Further information about project dependencies](https://docs.kedro.org/en/stable/kedro_project_setup/dependencies.html#project-specific-dependencies)
+Endpoint health check:
 
-## How to work with Kedro and notebooks
-
-> Note: Using `kedro jupyter` or `kedro ipython` to run your notebook provides these variables in scope: `context`, 'session', `catalog`, and `pipelines`.
->
-> Jupyter, JupyterLab, and IPython are already included in the project requirements by default, so once you have run `pip install -r requirements.txt` you will not need to take any extra steps before you use them.
-
-### Jupyter
-To use Jupyter notebooks in your Kedro project, you need to install Jupyter:
-
-```
-pip install jupyter
-```
-
-After installing Jupyter, you can start a local notebook server:
-
-```
-kedro jupyter notebook
-```
-
-### JupyterLab
-To use JupyterLab, you need to install it:
-
-```
-pip install jupyterlab
-```
-
-You can also start JupyterLab:
-
-```
-kedro jupyter lab
-```
-
-### IPython
-And if you want to run an IPython session:
-
-```
-kedro ipython
-```
-
-### How to ignore notebook output cells in `git`
-To automatically strip out all output cell contents before committing to `git`, you can use tools like [`nbstripout`](https://github.com/kynan/nbstripout). For example, you can add a hook in `.git/config` with `nbstripout --install`. This will run `nbstripout` before anything is committed to `git`.
-
-> *Note:* Your output cells will be retained locally.
-
-## Package your Kedro project
-
-[Further information about building project documentation and packaging your project](https://docs.kedro.org/en/stable/deploy/package_a_project/#package-an-entire-kedro-project)
+http://127.0.0.1:8000/health
