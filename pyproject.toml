@@ -17,6 +17,7 @@ dependencies = [
     "notebook",
     "kedro~=1.4.0",
     "ruff",
+    "optuna"
 ]
 
 [project.scripts]
@@ -75,10 +76,9 @@ select = [
     "I",
     "UP",
     "PL",
-    "T201",
 ]
 ignore = [
-    "E501",
+    "E501", "T201", "PLR2004"
 ]
 
 [tool.kedro_telemetry]

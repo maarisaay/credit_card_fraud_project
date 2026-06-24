@@ -6,14 +6,14 @@ generated using Kedro 1.4.0
 from kedro.pipeline import Pipeline, node, pipeline
 
 from .nodes import (
-    preprocess_data,
     engineer_features,
-    scale_features,
-    select_features,
-    tune_hyperparameters,
-    train_model,
     evaluate_model,
     prepare_serving_artifacts,
+    preprocess_data,
+    scale_features,
+    select_features,
+    train_model,
+    tune_hyperparameters,
 )
 
 

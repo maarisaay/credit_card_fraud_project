@@ -1,15 +1,15 @@
 import mlflow
 import optuna
 import pandas as pd
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
+    average_precision_score,
     classification_report,
     confusion_matrix,
-    average_precision_score,
     roc_auc_score,
 )
+from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.preprocessing import StandardScaler
 
 from fraud_detection_mlops.feature_utils import add_engineered_features
 
@@ -43,12 +43,16 @@ def scale_features(X_train: pd.DataFrame, X_test: pd.DataFrame):
     return X_train, X_test, scaler
 
 
-def select_features(X_train: pd.DataFrame, X_test: pd.DataFrame, selected_features: list):
+def select_features(
+    X_train: pd.DataFrame, X_test: pd.DataFrame, selected_features: list
+):
     """Filtruje do cech wybranych na podstawie feature_importance z AutoGluon (analiza w notebooku 02)."""
     return X_train[selected_features], X_test[selected_features]
 
 
-def tune_hyperparameters(X_train: pd.DataFrame, y_train: pd.Series, n_trials: int, random_state: int) -> dict:
+def tune_hyperparameters(
+    X_train: pd.DataFrame, y_train: pd.Series, n_trials: int, random_state: int
+) -> dict:
     """Bayesian Optimization (Optuna) hiperparametru C dla LogisticRegression."""
 
     def objective(trial):
@@ -70,12 +74,16 @@ def tune_hyperparameters(X_train: pd.DataFrame, y_train: pd.Series, n_trials: in
     mlflow.log_param("tuned_C", study.best_params["C"])
     mlflow.log_metric("cv_pr_auc", study.best_value)
 
-    print(f"Najlepsze C: {study.best_params['C']:.4f} (CV PR-AUC: {study.best_value:.4f})")
+    print(
+        f"Najlepsze C: {study.best_params['C']:.4f} (CV PR-AUC: {study.best_value:.4f})"
+    )
 
     return {"C": study.best_params["C"], "cv_pr_auc": study.best_value}
 
 
-def train_model(X_train: pd.DataFrame, y_train: pd.Series, best_params: dict, random_state: int):
+def train_model(
+    X_train: pd.DataFrame, y_train: pd.Series, best_params: dict, random_state: int
+):
     """Trening finalnego modelu z wytuningowanym C."""
     model = LogisticRegression(
         C=best_params["C"],

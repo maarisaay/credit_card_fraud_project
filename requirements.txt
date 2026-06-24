@@ -4,3 +4,4 @@ notebook
 kedro~=1.4.0
 mlflow
 ruff
+optuna
