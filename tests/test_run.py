@@ -1,25 +1,36 @@
-"""
-This module contains example tests for a Kedro project.
-Tests should be placed in ``src/tests``, in modules that mirror your
-project's structure, and in files named test_*.py.
-"""
-import pytest
 from pathlib import Path
-from kedro.framework.session import KedroSession
+
+from kedro.framework.project import pipelines
 from kedro.framework.startup import bootstrap_project
 
-# The tests below are here for the demonstration purpose
-# and should be replaced with the ones testing the project
-# functionality
 
-class TestKedroRun:
-    def test_kedro_run_no_pipeline(self):
-    # This example test expects a pipeline run failure, since
-    # the default project template contains no pipelines.
-        bootstrap_project(Path.cwd())
+def test_project_registers_real_fraud_pipeline():
+    """Smoke-test the Kedro project wiring without running model training."""
+    bootstrap_project(Path.cwd())
 
-        with pytest.raises(Exception) as excinfo:
-            with KedroSession.create(project_path=Path.cwd()) as session:
-                session.run()
+    registered_pipelines = pipelines
+    fraud_pipeline = registered_pipelines["fraud_pipeline"]
 
-        assert "Pipeline contains no nodes" in str(excinfo.value)
+    node_names = {node.name for node in fraud_pipeline.nodes}
+
+    assert "fraud_pipeline" in registered_pipelines
+    assert registered_pipelines["__default__"].nodes == fraud_pipeline.nodes
+    assert node_names == {
+        "preprocess_data_node",
+        "engineer_features_node",
+        "scale_features_node",
+        "select_features_node",
+        "tune_hyperparameters_node",
+        "train_model_node",
+        "evaluate_model_node",
+        "prepare_serving_artifacts_node",
+    }
+
+    preprocessing_node = fraud_pipeline.only_nodes("preprocess_data_node").nodes[0]
+    training_node = fraud_pipeline.only_nodes("train_model_node").nodes[0]
+
+    assert preprocessing_node.inputs == ["raw_data", "params:test_size", "params:random_state"]
+    assert training_node.inputs == ["X_train", "y_train", "best_params", "params:random_state"]
+    assert training_node.outputs == ["trained_model"]
+    assert "raw_data" in fraud_pipeline.inputs()
+    assert "evaluation_metrics" in fraud_pipeline.outputs()
