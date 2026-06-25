@@ -1,6 +1,20 @@
+from pathlib import Path
+
+import pytest
 from fastapi.testclient import TestClient
 
-from serve import app
+MODEL_PATH = Path("data/06_models/fraud_model.pkl")
+SCALER_PATH = Path("data/06_models/scaler.pkl")
+METADATA_PATH = Path("data/07_model_output/serving_metadata.json")
+
+pytestmark = pytest.mark.skipif(
+    not MODEL_PATH.exists()
+    or not SCALER_PATH.exists()
+    or not METADATA_PATH.exists(),
+    reason="Serving artifacts are not available in CI.",
+)
+
+from serve import app  # noqa: E402
 
 client = TestClient(app)
 
