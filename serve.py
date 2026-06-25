@@ -103,3 +103,16 @@ def metrics():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/model-info")
+def model_info():
+    return {
+        "model_type": type(model).__name__,
+        "selected_features_count": len(selected_features),
+        "selected_features": selected_features,
+        "monitoring": {
+            "prediction_logging": True,
+            "prometheus_metrics": True,
+            "drift_detection": "KS test for Amount",
+        },
+    }
