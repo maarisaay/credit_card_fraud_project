@@ -15,6 +15,7 @@ from prometheus_client import (
 )
 from pydantic import create_model
 from scipy.stats import ks_2samp
+from fastapi import FastAPI, Response, HTTPException
 
 from fraud_detection_mlops.feature_utils import add_engineered_features
 
@@ -65,6 +66,18 @@ def preprocess(transaction) -> pd.DataFrame:
 
 @app.post("/predict")
 def predict(transaction: Transaction):
+    if transaction.Amount < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Amount must be non-negative.",
+        )
+
+    if transaction.Time < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Time must be non-negative.",
+        )
+
     start = time.time()
 
     X = preprocess(transaction)
@@ -115,4 +128,12 @@ def model_info():
             "prometheus_metrics": True,
             "drift_detection": "KS test for Amount",
         },
+    }
+
+@app.get("/version")
+def version():
+    return {
+        "project": "fraud-detection-mlops",
+        "api_version": "1.0.0",
+        "model_version": "logistic-regression-optuna",
     }
