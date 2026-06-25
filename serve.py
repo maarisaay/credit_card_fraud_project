@@ -4,8 +4,7 @@ import time
 from pathlib import Path
 
 import pandas as pd
-from fastapi import FastAPI
-from fastapi.responses import Response
+from fastapi import FastAPI, HTTPException, Response
 from prometheus_client import (
     CONTENT_TYPE_LATEST,
     Counter,
@@ -15,7 +14,6 @@ from prometheus_client import (
 )
 from pydantic import create_model
 from scipy.stats import ks_2samp
-from fastapi import FastAPI, Response, HTTPException
 
 from fraud_detection_mlops.feature_utils import add_engineered_features
 
