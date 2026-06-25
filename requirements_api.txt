@@ -4,4 +4,7 @@ scikit-learn
 pandas
 numpy
 scipy
+prometheus-clientfastapi
+uvicorn
 prometheus-client
+httpx
